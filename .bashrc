@@ -36,3 +36,5 @@ git_info() {
 export PS1="\[${GREEN}\]\u@\h\[${NC}\]:\[${CYAN}\]\w\[${NC}\] \$(git_info)\n> "
 
 clear
+
+alias claude="/home/ryanf/.claude/local/claude"
