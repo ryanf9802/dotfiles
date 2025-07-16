@@ -1,6 +1,8 @@
 alias l="ls -la --color=auto"
 alias grep="grep --color=auto"
 alias gs="git status"
+alias gfp="git fetch && git pull"
+alias start="./scripts/start.sh"
 
 # PATH Variables
 
