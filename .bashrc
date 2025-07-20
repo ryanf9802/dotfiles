@@ -3,10 +3,12 @@ alias grep="grep --color=auto"
 alias gs="git status"
 alias gfp="git fetch && git pull"
 alias start="./scripts/start.sh"
+alias monitor="nvim logs/log.jsonl"
 
 # PATH Variables
 
 export PATH="$PATH:/opt/nvim-linux-x86_64/bin"
+export PATH="~/.npm-global/bin:$PATH"
 
 # Environment Variables
 
@@ -41,3 +43,7 @@ export PS1="\[${GREEN}\]\u@\h\[${NC}\]:\[${CYAN}\]\w\[${NC}\] \$(git_info)\n> "
 clear
 
 alias claude="/home/ryanf/.claude/local/claude"
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
