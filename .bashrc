@@ -6,6 +6,7 @@ alias gs="git status"
 alias gfp="git fetch && git pull"
 alias start="./scripts/start.sh"
 alias monitor="nvim logs/log.jsonl"
+alias clip="xclip -selection clipboard"
 
 # PATH Variables
 
