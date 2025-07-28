@@ -1,0 +1,189 @@
+#!/usr/bin/env bash
+
+# ---
+# Source Text Aggregator
+#
+# Aggregates text from various sources and handles output.
+#
+# Modes:
+# 1. Interactive (default): Uses 'dialog' to select from git-tracked files.
+# 2. Directory Source (-d /path/to/dir): Recursively finds git-tracked files in a directory.
+#
+# Options:
+# -c: Copies the final output to the system clipboard using 'xclip'.
+# -h: Shows the help message.
+#
+# All user-facing status messages are sent to stderr to avoid interfering
+# with the final stdout, which is intended for piping.
+# ---
+
+# --- Helper Functions ---
+
+# Displays usage information for the script.
+show_help() {
+    echo "Usage: srctext [-c] [-d /path/to/dir] [-h]"
+    echo
+    echo "Aggregates text from various sources."
+    echo
+    echo "Modes:"
+    echo "  (default)   Interactive mode. Uses 'dialog' to select from all git-tracked files in the current repo."
+    echo "  -d <dir>    Directory mode. Recursively finds and aggregates all git-tracked files in the specified directory."
+    echo
+    echo "Options:"
+    echo "  -c          Copies the final output to the system clipboard using 'xclip'."
+    echo "  -h          Show this help message."
+}
+
+# Checks for required command-line tools and installs them if missing.
+check_and_install_deps() {
+    local missing_deps=()
+    # Check for dialog and xclip.
+    if ! command -v dialog &> /dev/null; then
+        missing_deps+=("dialog")
+    fi
+    if ! command -v xclip &> /dev/null; then
+        missing_deps+=("xclip")
+    fi
+
+    # If there are missing dependencies, install them.
+    if [ ${#missing_deps[@]} -gt 0 ]; then
+        echo "The following required dependencies are missing: ${missing_deps[*]}" >&2
+        echo "Attempting to install them now with apt-get..." >&2
+        sudo apt-get update && sudo apt-get install -y "${missing_deps[@]}"
+        
+        # Verify that installation was successful.
+        for dep in "${missing_deps[@]}"; do
+            if ! command -v "$dep" &> /dev/null; then
+                echo "Error: Failed to install '$dep'. Please install it manually and try again." >&2
+                exit 1
+            fi
+        done
+        echo "Dependencies installed successfully." >&2
+    fi
+}
+
+# The 'gI' flags used in the obfuscation function require GNU sed.
+declare -A OBFUSCATION_MAP
+OBFUSCATION_MAP["Foresite360"]="@APP1@"
+
+apply_obfuscation() {
+    # If the map is empty, just pass the content through without processing.
+    if [ ${#OBFUSCATION_MAP[@]} -eq 0 ]; then
+        cat -
+        return
+    fi
+
+    local sed_script=""
+    for key in "${!OBFUSCATION_MAP[@]}"; do
+        value=${OBFUSCATION_MAP[$key]}
+        # Build a sed script to replace all occurrences, case-insensitively (gI).
+        sed_script+="s/${key}/${value}/gI;"
+    done
+
+    sed -E "${sed_script}"
+}
+
+# --- Argument Parsing ---
+
+SOURCE_DIR=""
+COPY_TO_CLIPBOARD=false
+
+while getopts "d:ch" opt; do
+  case $opt in
+    d) SOURCE_DIR="$OPTARG" ;;
+    c) COPY_TO_CLIPBOARD=true ;;
+    h) show_help; exit 0 ;;
+    \?) echo "Invalid option -$OPTARG" >&2; show_help; exit 1 ;;
+  esac
+done
+
+# --- Dependency & Environment Checks ---
+
+check_and_install_deps
+
+# For both modes, we need to be in a Git repository.
+if ! git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
+  echo "Error: This command must be run inside a Git repository." >&2
+  exit 1
+fi
+
+# --- File Discovery ---
+
+SELECTED_FILES=()
+
+if [ -n "$SOURCE_DIR" ]; then
+    # --- Directory Mode (-d) ---
+    if [ ! -d "$SOURCE_DIR" ]; then
+        echo "Error: Directory '$SOURCE_DIR' not found." >&2
+        exit 1
+    fi
+    echo "Sourcing git-tracked files recursively from '$SOURCE_DIR'..." >&2
+    # Use git ls-files to find all tracked files under the specified directory path.
+    while IFS= read -r file; do
+        SELECTED_FILES+=("$file")
+    done < <(git ls-files -- "$SOURCE_DIR" | sort)
+else
+    # --- Interactive Git Mode (default) ---
+    dialog_options=()
+    # Find all git-tracked files in the repository.
+    while IFS= read -r file; do
+        dialog_options+=("$file" "" "off")
+    done < <(git ls-files | sort)
+
+    if [ ${#dialog_options[@]} -eq 0 ]; then
+        echo "No files tracked by Git were found in this repository." >&2
+        exit 0
+    fi
+
+    SELECTION_FILE=$(mktemp)
+    dialog --title "Cogito Git File Selector" \
+           --backtitle "Use Arrow Keys, Space to select, Enter to confirm." \
+           --separate-output \
+           --clear \
+           --checklist "Select files to aggregate:" \
+           0 0 0 \
+           "${dialog_options[@]}" >/dev/tty 2>"$SELECTION_FILE"
+    
+    exit_status=$?
+    mapfile -t SELECTED_FILES < "$SELECTION_FILE"
+    rm "$SELECTION_FILE"
+
+    if [ $exit_status -ne 0 ]; then
+        echo "Selection cancelled." >&2
+        exit 0
+    fi
+fi
+
+# --- Content Aggregation & Output ---
+
+if [ ${#SELECTED_FILES[@]} -eq 0 ]; then
+    echo "No files were selected or found." >&2
+    exit 0
+fi
+
+# This function performs the actual content aggregation and printing.
+# It's defined as a function so its output can be easily piped.
+aggregate_content() {
+    for file in "${SELECTED_FILES[@]}"; do
+        if [ -f "$file" ]; then # Sanity check to ensure it is a file
+            echo
+            echo "# ------ ${file} ------"
+            echo
+            cat "$file"
+        fi
+    done
+}
+
+# Direct the output based on the -c flag.
+if [ "$COPY_TO_CLIPBOARD" = true ]; then
+    aggregate_content | apply_obfuscation | xclip -selection clipboard
+    echo "Output copied to clipboard." >&2
+else
+    # In interactive mode, clear the screen after dialog closes.
+    if [ -t 1 ] && [ -z "$SOURCE_DIR" ]; then
+        clear
+    fi
+    aggregate_content | apply_obfuscation
+fi
+
+

@@ -1,3 +1,5 @@
+mkdir -p ~/bin
+
 alias l="ls -la --color=auto"
 alias grep="grep --color=auto"
 alias gs="git status"
@@ -7,6 +9,7 @@ alias monitor="nvim logs/log.jsonl"
 
 # PATH Variables
 
+export PATH="$HOME/bin:$PATH"
 export PATH="$PATH:/opt/nvim-linux-x86_64/bin"
 export PATH="~/.npm-global/bin:$PATH"
 
