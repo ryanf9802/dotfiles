@@ -7,6 +7,8 @@ alias gfp="git fetch && git pull"
 alias start="./scripts/start.sh"
 alias monitor="nvim logs/log.jsonl"
 alias clip="xclip -selection clipboard"
+alias synth="./scripts/synth.sh"
+alias deploy="./scripts/deploy.sh"
 
 # PATH Variables
 
@@ -51,3 +53,7 @@ alias claude="/home/ryanf/.claude/local/claude"
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+export SDKMAN_DIR="$HOME/.sdkman"
+[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
