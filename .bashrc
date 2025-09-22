@@ -1,6 +1,6 @@
 mkdir -p ~/bin
 
-alias l="ls -la --color=auto"
+alias l="ls -lah --color=auto"
 alias grep="grep --color=auto"
 alias gs="git status"
 alias gfp="git fetch && git pull"
@@ -9,6 +9,8 @@ alias monitor="nvim logs/log.jsonl"
 alias clip="xclip -selection clipboard"
 alias synth="./scripts/synth.sh"
 alias deploy="./scripts/deploy.sh"
+alias sdklist="ls -1 ~/.sdkman/candidates/java"
+alias dup="docker compose up --build -d"
 
 # PATH Variables
 
@@ -46,7 +48,9 @@ git_info() {
 
 export PS1="\[${GREEN}\]\u@\h\[${NC}\]:\[${CYAN}\]\w\[${NC}\] \$(git_info)\n> "
 
-clear
+if [[ $PWD == /mnt/* ]]; then
+  cd "$HOME" || exit 1
+fi
 
 alias claude="/home/ryanf/.claude/local/claude"
 
@@ -57,3 +61,8 @@ export NVM_DIR="$HOME/.nvm"
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+export TEAMWEAVE="$HOME/workspace/teamweave"
+export tw=$TEAMWEAVE
+
+clear
