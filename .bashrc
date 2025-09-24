@@ -10,7 +10,7 @@ alias clip="xclip -selection clipboard"
 alias synth="./scripts/synth.sh"
 alias deploy="./scripts/deploy.sh"
 alias sdklist="ls -1 ~/.sdkman/candidates/java"
-alias dup="docker compose up --build -d"
+alias dup="docker compose up -d"
 
 # PATH Variables
 
