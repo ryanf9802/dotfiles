@@ -54,9 +54,8 @@ fi
 
 alias claude="/home/ryanf/.claude/local/claude"
 
-export NVM_DIR="$HOME/.nvm"
+export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="$HOME/.sdkman"
@@ -66,3 +65,5 @@ export TEAMWEAVE="$HOME/workspace/teamweave"
 export tw=$TEAMWEAVE
 
 clear
+
+. "$HOME/.local/bin/env"
