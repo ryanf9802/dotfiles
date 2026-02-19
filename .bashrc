@@ -1,18 +1,20 @@
 mkdir -p ~/bin
 
+# fs commands
 alias l="eza -lah --icons"
 alias ls="eza -lah --total-size --icons"
 alias grep="grep --color=auto"
+
+# git commands
 alias gs="git status"
 alias gfp="git fetch && git pull"
-alias gbclean="git branch -vv | awk '/: gone]/{print $1}' | xargs -r git branch -d"
-alias start="./scripts/start.sh"
-alias monitor="nvim logs/log.jsonl"
+alias gb="git branch"
+gbclean() {
+  git fetch --prune
+  git branch -vv | awk '/: gone]/{print $1}' | xargs -r git branch -d
+}
+
 alias clip="xclip -selection clipboard"
-alias synth="./scripts/synth.sh"
-alias deploy="./scripts/deploy.sh"
-alias sdklist="ls -1 ~/.sdkman/candidates/java"
-alias dup="docker compose up -d"
 
 # PATH Variables
 
@@ -26,13 +28,9 @@ export COMPOSE_BAKE=true
 
 # Terminal prompt configuration with colors and Git repository info
 
-RED=$'\e[0;31m'
 GREEN=$'\e[1;32m'
-YELLOW=$'\e[0;33m'
-BLUE=$'\e[0;34m'
 PURPLE=$'\e[1;35m'
 CYAN=$'\e[0;36m'
-WHITE=$'\e[0;37m'
 NC=$'\e[0m'
 
 git_info() {
@@ -59,14 +57,8 @@ alias claude="/home/ryanf/.claude/local/claude"
 export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
-#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
-export SDKMAN_DIR="$HOME/.sdkman"
-[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
-
 export TEAMWEAVE="$HOME/workspace/teamweave"
 export tw=$TEAMWEAVE
-
-clear
 
 . "$HOME/.local/bin/env"
 
@@ -77,3 +69,5 @@ case ":$PATH:" in
 *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
 # pnpm end
+
+clear
