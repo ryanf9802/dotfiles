@@ -1,9 +1,11 @@
 mkdir -p ~/bin
 
-alias l="ls -lah --color=auto"
+alias l="eza -lah --icons"
+alias ls="eza -lah --total-size --icons"
 alias grep="grep --color=auto"
 alias gs="git status"
 alias gfp="git fetch && git pull"
+alias gbclean="git branch -vv | awk '/: gone]/{print $1}' | xargs -r git branch -d"
 alias start="./scripts/start.sh"
 alias monitor="nvim logs/log.jsonl"
 alias clip="xclip -selection clipboard"
@@ -16,7 +18,7 @@ alias dup="docker compose up -d"
 
 export PATH="$HOME/bin:$PATH"
 export PATH="$PATH:/opt/nvim-linux-x86_64/bin"
-export PATH="~/.npm-global/bin:$PATH"
+export PATH="$HOME/.npm-global/bin:$PATH"
 
 # Environment Variables
 
@@ -34,10 +36,10 @@ WHITE=$'\e[0;37m'
 NC=$'\e[0m'
 
 git_info() {
-  if git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
+  if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
     repo=$(basename "$(git rev-parse --show-toplevel)" 2>/dev/null)
     branch=$(git symbolic-ref --short HEAD 2>/dev/null)
-    if git rev-parse --abbrev-ref @{u} > /dev/null 2>&1; then
+    if git rev-parse --abbrev-ref @{u} >/dev/null 2>&1; then
       ahead=$(git rev-list --count @{u}..HEAD 2>/dev/null)
     else
       ahead=0
@@ -67,3 +69,11 @@ export tw=$TEAMWEAVE
 clear
 
 . "$HOME/.local/bin/env"
+
+# pnpm
+export PNPM_HOME="/home/ryanf/.local/share/pnpm"
+case ":$PATH:" in
+*":$PNPM_HOME:"*) ;;
+*) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
