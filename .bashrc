@@ -52,8 +52,6 @@ if [[ $PWD == /mnt/* ]]; then
   cd "$HOME" || exit 1
 fi
 
-alias claude="/home/ryanf/.claude/local/claude"
-
 export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
