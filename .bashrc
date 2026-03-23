@@ -32,21 +32,23 @@ GREEN=$'\e[1;32m'
 PURPLE=$'\e[1;35m'
 CYAN=$'\e[0;36m'
 NC=$'\e[0m'
+ORANGE=$'\e[38;5;214m'
 
 git_info() {
   if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-    repo=$(basename "$(git rev-parse --show-toplevel)" 2>/dev/null)
+    # repo=$(basename "$(git rev-parse --show-toplevel)" 2>/dev/null)
     branch=$(git symbolic-ref --short HEAD 2>/dev/null)
     if git rev-parse --abbrev-ref @{u} >/dev/null 2>&1; then
       ahead=$(git rev-list --count @{u}..HEAD 2>/dev/null)
     else
       ahead=0
     fi
-    echo "${PURPLE}[${repo} | ${branch} | ${ahead}]${NC} "
+    # echo "${PURPLE}[${repo} | ${branch} | ${ahead}]${NC} "
+    echo "${PURPLE}${branch} ${ORANGE}+${ahead}${NC}${PURPLE}${NC} "
   fi
 }
 
-export PS1="\[${GREEN}\]\u@\h\[${NC}\]:\[${CYAN}\]\w\[${NC}\] \$(git_info)\n> "
+export PS1="\[${GREEN}\]\u\[${NC}\]\[${CYAN}\] \W\[${NC}\] \$(git_info)\n> "
 
 if [[ $PWD == /mnt/* ]]; then
   cd "$HOME" || exit 1
