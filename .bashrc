@@ -34,6 +34,22 @@ CYAN=$'\e[0;36m'
 NC=$'\e[0m'
 ORANGE=$'\e[38;5;214m'
 
+teamweave_mount_info() {
+  local teamweave_root="$HOME/workspace/teamweave"
+  local mount_state_file="$teamweave_root/.worktrees/.mounted-source"
+  local label
+
+  case "$PWD" in
+    "$teamweave_root"|"$teamweave_root"/*) ;;
+    *) return ;;
+  esac
+
+  [[ -f "$mount_state_file" ]] || return
+  label=$(sed -n 's/^LABEL=//p' "$mount_state_file" | head -n 1)
+  [[ -n "$label" ]] || return
+  printf ' mount:%s' "$label"
+}
+
 git_info() {
   if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
     # repo=$(basename "$(git rev-parse --show-toplevel)" 2>/dev/null)
@@ -44,7 +60,7 @@ git_info() {
       ahead=0
     fi
     # echo "${PURPLE}[${repo} | ${branch} | ${ahead}]${NC} "
-    echo "${PURPLE}${branch} ${ORANGE}+${ahead}${NC}${PURPLE}${NC} "
+    echo "${PURPLE}${branch} ${ORANGE}+${ahead}${NC}${PURPLE}$(teamweave_mount_info)${NC} "
   fi
 }
 
@@ -71,3 +87,7 @@ esac
 # pnpm end
 
 clear
+
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+export SDKMAN_DIR="$HOME/.sdkman"
+[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
